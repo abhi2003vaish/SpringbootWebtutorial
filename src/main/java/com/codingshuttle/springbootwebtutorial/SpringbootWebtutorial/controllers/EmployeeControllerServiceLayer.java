@@ -2,13 +2,17 @@ package com.codingshuttle.springbootwebtutorial.SpringbootWebtutorial.controller
 
 
 import com.codingshuttle.springbootwebtutorial.SpringbootWebtutorial.dto.EmployeeDTO;
+import com.codingshuttle.springbootwebtutorial.SpringbootWebtutorial.exceptions.ResourceNotFoundException;
 import com.codingshuttle.springbootwebtutorial.SpringbootWebtutorial.services.EmployeeService;
+import jakarta.validation.Valid;
+import org.springframework.boot.context.config.ConfigDataResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @RestController
@@ -28,13 +32,39 @@ public class EmployeeControllerServiceLayer {
 //        return employeeService.getEmployeeById(id);
 //    }
 
+//    @GetMapping(path="/{employeeId}")
+//    public ResponseEntity<EmployeeDTO> getEmployeeById(@PathVariable(name="employeeId") Long id){
+//        Optional<EmployeeDTO> employeeDTO= employeeService.getEmployeeById(id);
+//        return employeeDTO
+//                .map(employeeDTO1 -> ResponseEntity.ok(employeeDTO1))
+//                .orElse(ResponseEntity.notFound().build());
+//    }
+
+//    @GetMapping(path="/{employeeId}")
+//    public ResponseEntity<EmployeeDTO> getEmployeeById(@PathVariable(name="employeeId") Long id){
+//        Optional<EmployeeDTO> employeeDTO= employeeService.getEmployeeById(id);
+//        return employeeDTO
+//                .map(employeeDTO1 -> ResponseEntity.ok(employeeDTO1))
+//                .orElseThrow(() -> new NoSuchElementException("Employee not found"));
+//    }
+
     @GetMapping(path="/{employeeId}")
     public ResponseEntity<EmployeeDTO> getEmployeeById(@PathVariable(name="employeeId") Long id){
         Optional<EmployeeDTO> employeeDTO= employeeService.getEmployeeById(id);
         return employeeDTO
                 .map(employeeDTO1 -> ResponseEntity.ok(employeeDTO1))
-                .orElse(ResponseEntity.notFound().build());
+                .orElseThrow(() -> new ResourceNotFoundException("Resource not found with id: "+id));
+        
     }
+
+
+
+//    local exception handler for NoSuchElementException
+
+//    @ExceptionHandler(NoSuchElementException.class)
+//    public ResponseEntity<String> handleEmployeeNotFound(NoSuchElementException exception){
+//        return new ResponseEntity<>("Employee not found", HttpStatus.NOT_FOUND);
+//    }
 
 //    @GetMapping
 //    public List<EmployeeDTO> getAllEmployees(){
@@ -52,7 +82,7 @@ public class EmployeeControllerServiceLayer {
 //    }
 
     @PostMapping
-    public ResponseEntity<EmployeeDTO> createNewEmployee(@RequestBody EmployeeDTO inputEmployee){
+    public ResponseEntity<EmployeeDTO> createNewEmployee(@RequestBody @Valid EmployeeDTO inputEmployee){
         EmployeeDTO savedEmployee= employeeService.createNewEmployee(inputEmployee);
 //        return new ResponseEntity<>(savedEmployee, HttpStatus.CREATED);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedEmployee);
@@ -65,7 +95,7 @@ public class EmployeeControllerServiceLayer {
 //    }
 
     @PutMapping(path="/{employeeTd}")
-    public ResponseEntity<EmployeeDTO> updateEmployeeById(@RequestBody EmployeeDTO employeeDTO,@PathVariable(name="employeeTd") Long id){
+    public ResponseEntity<EmployeeDTO> updateEmployeeById(@RequestBody @Valid EmployeeDTO employeeDTO,@PathVariable(name="employeeTd") Long id){
         return ResponseEntity.ok(employeeService.updateEmployeeById(employeeDTO,id));
     }
 
